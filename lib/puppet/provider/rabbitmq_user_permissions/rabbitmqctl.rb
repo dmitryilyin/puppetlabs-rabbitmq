@@ -1,4 +1,6 @@
-Puppet::Type.type(:rabbitmq_user_permissions).provide(:rabbitmqctl) do
+require File.join File.dirname(__FILE__), '../rabbitmq_common.rb'
+
+Puppet::Type.type(:rabbitmq_user_permissions).provide(:rabbitmqctl, :parent => Puppet::Provider::Rabbitmq_common) do
 
   if Puppet::PUPPETVERSION.to_f < 3
     commands :rabbitmqctl => 'rabbitmqctl'
@@ -61,6 +63,7 @@ Puppet::Type.type(:rabbitmq_user_permissions).provide(:rabbitmqctl) do
   # I am implementing prefetching in exists b/c I need to be sure
   # that the rabbitmq package is installed before I make this call.
   def exists?
+    self.class.wait_for_online
     users(should_user, should_vhost)
   end
 

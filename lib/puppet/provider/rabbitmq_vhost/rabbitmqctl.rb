@@ -1,4 +1,6 @@
-Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl) do
+require File.join File.dirname(__FILE__), '../rabbitmq_common.rb'
+
+Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl, :parent => Puppet::Provider::Rabbitmq_common) do
 
   if Puppet::PUPPETVERSION.to_f < 3
     commands :rabbitmqctl => 'rabbitmqctl'
@@ -9,6 +11,7 @@ Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl) do
   end
 
   def self.instances
+    self.wait_for_online
     rabbitmqctl('-q', 'list_vhosts').split(/\n/).map do |line|
       if line =~ /^(\S+)$/
         new(:name => $1)
@@ -27,6 +30,7 @@ Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl) do
   end
 
   def exists?
+    self.class.wait_for_online
     out = rabbitmqctl('-q', 'list_vhosts').split(/\n/).detect do |line|
       line.match(/^#{Regexp.escape(resource[:name])}$/)
     end

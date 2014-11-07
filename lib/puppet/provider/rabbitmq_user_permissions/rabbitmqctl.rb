@@ -61,6 +61,7 @@ Puppet::Type.type(:rabbitmq_user_permissions).provide(:rabbitmqctl) do
   # I am implementing prefetching in exists b/c I need to be sure
   # that the rabbitmq package is installed before I make this call.
   def exists?
+    self.class.wait_for_online
     users(should_user, should_vhost)
   end
 

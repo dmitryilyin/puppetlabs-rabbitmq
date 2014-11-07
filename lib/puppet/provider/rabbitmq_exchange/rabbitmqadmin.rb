@@ -45,6 +45,7 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:rabbitmqadmin) do
   end
 
   def self.instances
+    self.wait_for_online
     resources = []
     all_vhosts.each do |vhost|
         all_exchanges(vhost).collect do |line|
@@ -76,6 +77,7 @@ Puppet::Type.type(:rabbitmq_exchange).provide(:rabbitmqadmin) do
   end
 
   def exists?
+    self.class.wait_for_online
     @property_hash[:ensure] == :present
   end
 

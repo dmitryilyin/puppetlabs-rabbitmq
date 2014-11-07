@@ -9,6 +9,7 @@ Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl) do
   end
 
   def self.instances
+    self.wait_for_online
     rabbitmqctl('-q', 'list_vhosts').split(/\n/).map do |line|
       if line =~ /^(\S+)$/
         new(:name => $1)
@@ -27,6 +28,7 @@ Puppet::Type.type(:rabbitmq_vhost).provide(:rabbitmqctl) do
   end
 
   def exists?
+    self.class.wait_for_online
     out = rabbitmqctl('-q', 'list_vhosts').split(/\n/).detect do |line|
       line.match(/^#{Regexp.escape(resource[:name])}$/)
     end
